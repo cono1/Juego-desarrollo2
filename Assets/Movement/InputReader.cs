@@ -14,6 +14,7 @@ public class InputReader : MonoBehaviour
     {
         playerInput = GetComponent<PlayerInput>();
         moveAction = playerInput.actions.FindAction("Move");
+        moveAction.performed += ctx => HandleMoveInput(ctx); // Subscribe to the performed event
 
     }
     private void Awake()
@@ -24,14 +25,13 @@ public class InputReader : MonoBehaviour
                            $"\nThis class is dependant on a {nameof(walkBehaviour)} component!");
         }
     }
-    private void Update()
-    {
-        MovePlayer();
-    }
 
-    private void MovePlayer()
+    public void HandleMoveInput(InputAction.CallbackContext context)
     {
-        Vector2 dir = moveAction.ReadValue<Vector2>();
-        transform.position += new Vector3(dir.x, 0, dir.y) * Time.deltaTime;
+        Vector2 moveInput = context.ReadValue<Vector2>();
+        Vector3 moveDirection = new Vector3(moveInput.x, 0, moveInput.y);
+
+        if (walkBehaviour != null)
+            walkBehaviour.Move(moveDirection);
     }
 }
