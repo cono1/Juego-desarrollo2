@@ -15,6 +15,7 @@ public class InputReader : MonoBehaviour
         playerInput = GetComponent<PlayerInput>();
         moveAction = playerInput.actions.FindAction("Move");
         moveAction.performed += ctx => HandleMoveInput(ctx); // Subscribe to the performed event
+        moveAction.canceled += ctx => HandleMoveInputCanceled(ctx);
 
     }
     private void Awake()
@@ -33,5 +34,10 @@ public class InputReader : MonoBehaviour
 
         if (walkBehaviour != null)
             walkBehaviour.Move(moveDirection);
+    }
+
+    public void HandleMoveInputCanceled(InputAction.CallbackContext context)
+    {
+        walkBehaviour.Move(Vector3.zero);
     }
 }

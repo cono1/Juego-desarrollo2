@@ -142,7 +142,7 @@ Rigidbody:
   m_GameObject: {fileID: 94708862}
   serializedVersion: 4
   m_Mass: 1
-  m_Drag: 0
+  m_Drag: 5
   m_AngularDrag: 0.05
   m_CenterOfMass: {x: 0, y: 0, z: 0}
   m_InertiaTensor: {x: 1, y: 1, z: 1}
@@ -158,7 +158,7 @@ Rigidbody:
   m_UseGravity: 1
   m_IsKinematic: 0
   m_Interpolate: 0
-  m_Constraints: 36
+  m_Constraints: 116
   m_CollisionDetection: 0
 --- !u!114 &94708870
 MonoBehaviour:
@@ -172,9 +172,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d055fbc00581fa042b9d3f4da5aae948, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  acceleration: 25
-  deceleration: 15
-  maxSpeed: 50
+  acceleration: 15
+  maxSpeed: 10
+  deceleration: 0.5
   rigidBody: {fileID: 94708868}
 --- !u!136 &94708872
 CapsuleCollider:

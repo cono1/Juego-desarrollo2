@@ -5,11 +5,12 @@ using UnityEngine;
 public class WalkBehaviour : MonoBehaviour
 {
     [SerializeField] private float acceleration = 15f;
-    [SerializeField] private float deceleration = 5f;
-    [SerializeField] private float maxSpeed = 30f;
+    [SerializeField] private float maxSpeed = 10f;
+    [SerializeField] private float deceleration = 0.75f;
     [SerializeField] private Rigidbody rigidBody;
     private Vector3 desiredDir;
     private float currentSpeed;
+    private bool shouldBrake;
 
     private void Start()
     {
@@ -18,20 +19,30 @@ public class WalkBehaviour : MonoBehaviour
 
     public void Move(Vector3 direction)
     {
+        if (direction.magnitude < 1f)
+        {
+            shouldBrake = true;
+        }
+        Debug.Log($"{name}: Dir magnitude {direction.magnitude}");
         desiredDir = direction;
+
     }
 
     private void FixedUpdate()
     {
-        currentSpeed = Vector3.Magnitude(rigidBody.velocity);
+        var currentHorizontalVelocity = rigidBody.velocity;
+        currentHorizontalVelocity.y = 0;
+        var currentSpeed = currentHorizontalVelocity.magnitude;
 
-        if (currentSpeed < maxSpeed)
-        {
+
+        if (currentSpeed < maxSpeed && desiredDir.magnitude > 0)
             rigidBody.AddForce(desiredDir.normalized * acceleration, ForceMode.Force);
-        }
-        else
+ 
+        if (shouldBrake)
         {
-            rigidBody.velocity -= rigidBody.velocity * deceleration * Time.fixedDeltaTime;
+            rigidBody.AddForce(-rigidBody.velocity * deceleration, ForceMode.Acceleration);
+            shouldBrake = false;
+            Debug.Log($"{name}: Character hit brake!\tCurrent Speed is {currentSpeed}");
         }
     }
 }
