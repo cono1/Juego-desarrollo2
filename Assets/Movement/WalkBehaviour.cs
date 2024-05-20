@@ -19,13 +19,14 @@ public class WalkBehaviour : MonoBehaviour
 
     public void Move(Vector3 direction)
     {
-        if (direction.magnitude < 1f)
+        if (direction.magnitude < 0.01f)
         {
             shouldBrake = true;
         }
-        Debug.Log($"{name}: Dir magnitude {direction.magnitude}");
-        desiredDir = direction;
 
+        Debug.Log($"{name}: Dir magnitude {direction.magnitude}");
+
+        desiredDir = transform.InverseTransformDirection(direction);
     }
 
     private void FixedUpdate()
@@ -34,15 +35,36 @@ public class WalkBehaviour : MonoBehaviour
         currentHorizontalVelocity.y = 0;
         var currentSpeed = currentHorizontalVelocity.magnitude;
 
+        //Quaternion targetRotation = Quaternion.LookRotation(desiredDir);
+        //targetRotation = Quaternion.RotateTowards(
+        //                 transform.rotation,
+        //                 targetRotation,
+        //                 360 * Time.fixedDeltaTime);
 
         if (currentSpeed < maxSpeed && desiredDir.magnitude > 0)
-            rigidBody.AddForce(desiredDir.normalized * acceleration, ForceMode.Force);
- 
+        {
+            rigidBody.AddForce(desiredDir * acceleration, ForceMode.Force);
+            //rigidBody.MoveRotation(targetRotation);
+        }
+        
+
         if (shouldBrake)
         {
             rigidBody.AddForce(-rigidBody.velocity * deceleration, ForceMode.Acceleration);
             shouldBrake = false;
             Debug.Log($"{name}: Character hit brake!\tCurrent Speed is {currentSpeed}");
         }
+    }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+
+    private void OnGUI()
+    {
+        GUI.Label(new Rect(20, Screen.height / 2, 200, 20), "Velocity Magnitude: " + rigidBody.velocity.magnitude.ToString("F2"));
+    }
+#endif
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.blue;
+        Gizmos.DrawRay(transform.position, rigidBody.velocity);
     }
 }
