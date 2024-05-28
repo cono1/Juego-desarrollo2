@@ -11,6 +11,7 @@ public class WalkBehaviour : MonoBehaviour
     private Vector3 desiredDir;
     private float currentSpeed;
     private bool shouldBrake;
+    private float maxAngleRotation = 120;
 
     private void Start()
     {
@@ -19,14 +20,18 @@ public class WalkBehaviour : MonoBehaviour
 
     public void Move(Vector3 direction)
     {
-        if (direction.magnitude < 0.01f)
-        {
-            shouldBrake = true;
-        }
+        var angle = Vector3.Angle(rigidBody.velocity, direction);
 
+        shouldBrake = direction.magnitude < 0.01f;
+        
         Debug.Log($"{name}: Dir magnitude {direction.magnitude}");
 
         desiredDir = transform.InverseTransformDirection(direction);
+
+        if (angle > maxAngleRotation)
+        {
+            desiredDir = Vector3.zero;
+        }
     }
 
     private void FixedUpdate()
@@ -34,17 +39,14 @@ public class WalkBehaviour : MonoBehaviour
         var currentHorizontalVelocity = rigidBody.velocity;
         currentHorizontalVelocity.y = 0;
         var currentSpeed = currentHorizontalVelocity.magnitude;
+        desiredDir.y = 0;
 
-        //Quaternion targetRotation = Quaternion.LookRotation(desiredDir);
-        //targetRotation = Quaternion.RotateTowards(
-        //                 transform.rotation,
-        //                 targetRotation,
-        //                 360 * Time.fixedDeltaTime);
+        float angle = Vector3.SignedAngle(transform.forward, desiredDir, transform.up);
 
-        if (currentSpeed < maxSpeed && desiredDir.magnitude > 0)
+        if (currentSpeed < maxSpeed && desiredDir.magnitude > 0 && !shouldBrake)
         {
+            transform.Rotate(transform.up, angle * Time.deltaTime * 5);
             rigidBody.AddForce(desiredDir * acceleration, ForceMode.Force);
-            //rigidBody.MoveRotation(targetRotation);
         }
         
 
@@ -55,6 +57,7 @@ public class WalkBehaviour : MonoBehaviour
             Debug.Log($"{name}: Character hit brake!\tCurrent Speed is {currentSpeed}");
         }
     }
+
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 
     private void OnGUI()
