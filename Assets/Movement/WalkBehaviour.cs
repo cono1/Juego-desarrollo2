@@ -7,11 +7,12 @@ public class WalkBehaviour : MonoBehaviour
     [SerializeField] private float acceleration = 15f;
     [SerializeField] private float maxSpeed = 10f;
     [SerializeField] private float deceleration = 0.75f;
+    [SerializeField] private float rotationSpeed = 5f;
     [SerializeField] private Rigidbody rigidBody;
     private Vector3 desiredDir;
     private float currentSpeed;
     private bool shouldBrake;
-    private float maxAngleRotation = 120;
+    [SerializeField] private float maxAngleRotation = 140;
 
     private void Start()
     {
@@ -26,13 +27,14 @@ public class WalkBehaviour : MonoBehaviour
         
         Debug.Log($"{name}: Dir magnitude {direction.magnitude}");
 
-        desiredDir = transform.InverseTransformDirection(direction);
+        desiredDir = transform.TransformDirection(direction);
 
         if (angle > maxAngleRotation)
         {
             desiredDir = Vector3.zero;
         }
     }
+
 
     private void FixedUpdate()
     {
@@ -45,10 +47,16 @@ public class WalkBehaviour : MonoBehaviour
 
         if (currentSpeed < maxSpeed && desiredDir.magnitude > 0 && !shouldBrake)
         {
-            transform.Rotate(transform.up, angle * Time.deltaTime * 5);
             rigidBody.AddForce(desiredDir * acceleration, ForceMode.Force);
+
+            //Quaternion toRotation = Quaternion.LookRotation(desiredDir, Vector3.up); //https://www.youtube.com/watch?v=BJzYGsMcy8Q&list=PLx7AKmQhxJFaj0IcdjGJzIq5KwrIfB1m9&index=2
+            //transform.rotation = Quaternion.RotateTowards(transform.rotation, toRotation, rotationSpeed * Time.deltaTime);
+
+            transform.Rotate(transform.up, angle * rotationSpeed * Time.deltaTime);
+
+            //transform.Rotate(transform.up * desiredDir.x * (rotationSpeed * Time.deltaTime));
         }
-        
+
 
         if (shouldBrake)
         {
