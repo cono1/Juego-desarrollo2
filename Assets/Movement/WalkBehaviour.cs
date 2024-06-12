@@ -13,6 +13,7 @@ public class WalkBehaviour : MonoBehaviour
     private float currentSpeed;
     private bool shouldBrake;
     [SerializeField] private float maxAngleRotation = 140;
+    private Vector3 lastDirection;
 
     private void Start()
     {
@@ -21,7 +22,10 @@ public class WalkBehaviour : MonoBehaviour
 
     public void Move(Vector3 direction)
     {
-        var angle = Vector3.Angle(rigidBody.velocity, direction);
+        if (direction.magnitude != 0)
+            lastDirection = direction;
+
+        var angle = Vector3.Angle(rigidBody.velocity, lastDirection);
 
         shouldBrake = direction.magnitude < 0.01f;
         
@@ -31,10 +35,10 @@ public class WalkBehaviour : MonoBehaviour
 
         if (angle > maxAngleRotation)
         {
+            Debug.Log($"{name}: the angle is greater than the max rotation");
             desiredDir = Vector3.zero;
         }
     }
-
 
     private void FixedUpdate()
     {
